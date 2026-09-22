@@ -18,7 +18,7 @@ export const config = {
   assemblyAiKey: process.env.ASSEMBLYAI_API_KEY || '',
   voiceProvider: process.env.VOICE_PROVIDER || (process.env.ASSEMBLYAI_API_KEY ? 'assemblyai' : 'mock'),
   aaiVoiceAgentWss: process.env.AAI_VOICE_AGENT_WSS || 'wss://agents.assemblyai.com/v1/ws',
-  aaiVoice: process.env.AAI_VOICE || 'alloy',
+  aaiVoice: process.env.AAI_VOICE || 'alba',
   demoRepo: process.env.DEMO_REPO || 'Abhinav-Prabhakar/boomerang-demo-target',
   workDir: path.resolve(process.cwd(), process.env.WORK_DIR || './work'),
   dataDir: path.resolve(process.cwd(), process.env.DATA_DIR || './data'),
@@ -34,5 +34,5 @@ export const config = {
   aaiExtraKeyterms: (process.env.AAI_EXTRA_KEYTERMS || '')
     .split(',').map((s) => s.trim()).filter(Boolean),
   // Browser mic capture format for the real session (PCM16 mono).
-  aaiSampleRate: Number(process.env.AAI_SAMPLE_RATE || 16000),
+  aaiSampleRate: Number(process.env.AAI_SAMPLE_RATE || 24000),
 };

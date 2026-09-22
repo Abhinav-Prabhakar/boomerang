@@ -22,11 +22,21 @@ Two orchestrated sessions over `wss://agents.assemblyai.com/v1/ws`
 | brief      | user → agent     | speak the task; `keyterms` carry repo jargon         |
 | callback   | agent → user     | agent initiates on worker done/fail; `tool.call` carries consent-gated side effects |
 
-Handshake implemented in `AssemblyAIVoiceSession`: `session.update`
-(system prompt, greeting, voice, tools, keyterms, context, turn_detection)
-→ `session.ready` → `input.audio` frames (base64) / `input.text`.
-Inbound routed: `transcript.user`, `transcript.agent`, `tool.call`,
-`reply.audio`, `session.ended`.
+Handshake implemented in `AssemblyAIVoiceSession` and verified live:
+`session.update` (system_prompt, greeting, `input.{format,keyterms,
+turn_detection}`, `output.{voice,format}`, tools with `type:"function"`)
+→ `session.ready` → `input.audio` frames (base64 PCM16 @ 24kHz).
+Inbound routed: `transcript.user[.delta]`, `transcript.agent[.delta]`,
+`tool.call`, `reply.audio` (payload field: `data`), `reply.done`,
+`session.ended`. `tool.result` is drained per pending call on `reply.done`;
+`close()` sends `session.end` so the 30-second grace window doesn't bill.
+
+No text-input event exists on the wire: `sendText` injects
+`conversation.message` (role user) + `reply.create`, sequenced after the
+first `reply.done` so a decision never lands before the summary. The
+proactive summary itself is `reply.create` fired on `session.ready` — the
+agent speaks first. Real agent speech is also persisted to
+`data/audio-<taskId>.pcm` (concatenated `reply.audio` chunks).
 
 ## Mic PCM pipeline (browser → server → AAI)
 
@@ -39,13 +49,14 @@ Browser side TODO (the only remaining code): in `web/app.js`, when
 
 ```js
 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-const ctx = new AudioContext({ sampleRate: 16000 });   // AAI_SAMPLE_RATE
+const ctx = new AudioContext({ sampleRate: 24000 });   // AAI_SAMPLE_RATE
 const src = ctx.createMediaStreamSource(stream);
 // AudioWorklet: Float32 mono → Int16 PCM → ws.send(int16.buffer)
 const ws = new WebSocket(wsUrl('/ws/voice?task=' + taskId));
 ```
 
-Playback: `reply.audio` arrives base64 PCM16 → decode → AudioContext queue.
+Playback: `reply.audio` arrives base64 PCM16 @ 24kHz on the SSE
+`callback.audio` event → decode → AudioContext queue.
 The mock path stays for no-key demos; browser STT/TTS handles audio there.
 
 ## Config knobs (all env-driven, defaults tuned for one-word approvals)
@@ -56,8 +67,8 @@ The mock path stays for no-key demos; browser STT/TTS handles audio there.
 | `AAI_MAX_SILENCE_MS`   | 1200    | end-of-turn bound on the callback            |
 | `AAI_INTERRUPT_RESPONSE` | true  | barge-in: user can cut off the summary       |
 | `AAI_EXTRA_KEYTERMS`   | —       | jargon beyond the per-session set            |
-| `AAI_SAMPLE_RATE`      | 16000   | PCM16 mono rate for `input.audio`            |
-| `AAI_VOICE`            | alloy   | callback voice                               |
+| `AAI_SAMPLE_RATE`      | 24000   | PCM16 mono rate for `input.audio`/`reply.audio` |
+| `AAI_VOICE`            | alba    | callback voice (valid: alba, michael, anna…) |
 
 Per-session keyterms already sent: `retry.ts`, repo name, `pull request`,
 task branch — merged (deduped) with `AAI_EXTRA_KEYTERMS` in `session.update`.
@@ -69,10 +80,12 @@ a consent receipt before any side effect (`gh pr create`) runs. On a failed
 run, `approve_ship` maps to *retry* (fresh dispatch + `task.retry` receipt),
 `reject_ship` to *cancel*.
 
-## Verify once the key lands
+## Verified 2026-09-22 (live, key present)
 
-1. `.env`: set key + `VOICE_PROVIDER=assemblyai`
-2. `node server/index.ts` — health reports `voiceProvider: assemblyai`
-3. Dashboard → dispatch → confirm `session.ready` in server log (add a
-   `console.log` on the event if needed)
-4. Speak "ship it" on the callback → PR + receipt, exactly as in mock.
+1. `.env`: key + `VOICE_PROVIDER=assemblyai` — health reports
+   `voiceProvider: assemblyai`
+2. `npm run smoke` — **PASS**: dispatch → worker → real `session.ready` →
+   agent speaks summary (real `reply.audio`) → injected "ship it" →
+   `tool.call approve_ship` → `tool.result` → PR #5 opened on
+   boomerang-demo-target → consent receipt written.
+3. Session ends with `session.end` → `session.ended` → clean close (1000).

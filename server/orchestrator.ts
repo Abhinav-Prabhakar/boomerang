@@ -1,5 +1,6 @@
 // The Boomerang orchestrator: brief → work → CALLBACK → consent → action.
 import path from 'node:path';
+import { writeFileSync } from 'node:fs';
 import { createTask, updateTask, addTranscript, getTask, emit, type Task } from './state.ts';
 import { runWorker, sanitize } from './worker.ts';
 import { createVoiceSession, type VoiceSession } from './voice.ts';
@@ -82,12 +83,31 @@ export function startCallback(taskId: string) {
   });
   sessions.set(taskId, session);
 
+  session.on('error', (e: Error) => console.error('[voice]', taskId, e.message));
+  // The agent speaks first — proactively deliver the message without
+  // waiting for user audio (mock emits greeting+context itself at
+  // construction, so requestReply is a no-op there).
+  session.once('session.ready', () =>
+    session.requestReply(failed
+      ? 'Tell the user what failed in one breath, then ask: retry or cancel?'
+      : 'Deliver the summary now in under 15 seconds, then ask for their decision.'));
+
   session.on('transcript.user', (t: string) => addTranscript(taskId, 'user', t, 'callback'));
   session.on('transcript.agent', (t: string) => {
     addTranscript(taskId, 'agent', t, 'callback');
     emit('callback.speech', { taskId, text: t });
   });
-  session.on('reply.audio', (buf: Buffer) => emit('callback.audio', { taskId, audio: buf.toString('base64') }));
+  const audioChunks: Buffer[] = [];
+  session.on('reply.audio', (buf: Buffer) => {
+    audioChunks.push(buf);
+    emit('callback.audio', { taskId, audio: buf.toString('base64') });
+  });
+  // Keep the real agent speech — demo footage can dub the actual voice.
+  session.on('session.ended', () => {
+    if (!audioChunks.length) return;
+    const f = path.join(config.dataDir, `audio-${taskId}.pcm`);
+    writeFileSync(f, Buffer.concat(audioChunks));
+  });
   session.on('tool.call', (call: { name: string; arguments?: { reason?: string } }) => {
     if (call.name === 'approve_ship') decide(taskId, 'approved', lastUserUtterance(taskId) || 'ship it');
     else if (call.name === 'reject_ship') decide(taskId, 'rejected', lastUserUtterance(taskId) || call.arguments?.reason || "don't ship");
