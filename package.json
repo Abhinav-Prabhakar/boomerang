@@ -1,0 +1,19 @@
+{
+  "name": "boomerang",
+  "version": "0.1.0",
+  "description": "Voice pager for async coding agents — it calls you back",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "node --watch server/index.ts",
+    "start": "node server/index.ts",
+    "seed": "bash scripts/seed-demo-repo.sh",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=23.6.0"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boomerang — voice pager for coding agents</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>🪃 Boomerang</h1>
+  <p class="tag">Voice pager for async coding agents — <em>it calls you back</em></p>
+  <div id="provider" class="pill"></div>
+</header>
+
+<main>
+  <section id="brief-panel">
+    <h2>Brief a task</h2>
+    <div class="brief-row">
+      <input id="brief-input" placeholder="e.g. The staging build is flaking on the payments branch — find it, fix it, don't touch the API contract" />
+      <button id="brief-mic" title="Speak the brief">🎙</button>
+      <button id="brief-send">Dispatch →</button>
+    </div>
+  </section>
+
+  <section id="layout">
+    <div id="tasks-col">
+      <h2>Tasks</h2>
+      <div id="tasks"></div>
+    </div>
+
+    <div id="callback-col">
+      <h2>Incoming call <span id="call-status"></span></h2>
+      <div id="callback-panel" class="hidden">
+        <div class="call-banner">🪃 <b>BOOMERANG</b> — agent callback</div>
+        <div id="call-summary"></div>
+        <div class="call-actions">
+          <button id="btn-ship" class="approve">“Ship it”</button>
+          <button id="btn-reject" class="reject">“Don’t ship”</button>
+          <button id="btn-details">Details</button>
+          <button id="btn-speak" title="Hold to talk">🎙 Speak</button>
+        </div>
+        <div id="heard" class="heard"></div>
+      </div>
+      <h2>Live transcript</h2>
+      <div id="transcript"></div>
+    </div>
+
+    <div id="receipts-col">
+      <h2>Consent receipts</h2>
+      <div id="receipts"></div>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
