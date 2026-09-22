@@ -7,7 +7,7 @@
 // agent loop (Claude Code SDK etc.) drops in later.
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { config } from './config.ts';
 import { addWorkerEvent, updateTask, type Task } from './state.ts';
@@ -75,6 +75,7 @@ export async function runWorker(task: Task): Promise<WorkerResult> {
   // 1) clone
   const repoDir = path.join(config.workDir, task.id);
   mkdirSync(config.workDir, { recursive: true });
+  if (existsSync(repoDir)) rmSync(repoDir, { recursive: true, force: true });
   try {
     const token = await ghToken().catch(() => '');
     const cloneUrl = token

@@ -104,12 +104,13 @@ export class MockVoiceSession extends VoiceSession {
     const t = text.toLowerCase();
     this.emit('transcript.user', text);
     setTimeout(() => {
-      if (/\b(ship it|ship|approve|yes|go ahead|deploy|merge)\b/.test(t)) {
-        this.emit('tool.call', { call_id: `mock-${Date.now()}`, name: 'approve_ship', arguments: {} });
-        this.emit('transcript.agent', 'Shipping it — opening the PR now.');
-      } else if (/\b(don't ship|do not ship|reject|no|stop|cancel|hold)\b/.test(t)) {
+      // NEGATIVE intents first — "don't ship" contains "ship"
+      if (/\b(don't ship|do not ship|dont ship|reject|no\b|stop|cancel|hold|don't|wait)\b/.test(t)) {
         this.emit('tool.call', { call_id: `mock-${Date.now()}`, name: 'reject_ship', arguments: {} });
         this.emit('transcript.agent', 'Understood — not shipping. Rejection logged.');
+      } else if (/\b(ship it|ship|approve|yes|go ahead|deploy|merge)\b/.test(t)) {
+        this.emit('tool.call', { call_id: `mock-${Date.now()}`, name: 'approve_ship', arguments: {} });
+        this.emit('transcript.agent', 'Shipping it — opening the PR now.');
       } else if (/\b(detail|more|what changed|diff|summary|repeat)\b/.test(t)) {
         this.emit('tool.call', { call_id: `mock-${Date.now()}`, name: 'get_details', arguments: {} });
       } else {

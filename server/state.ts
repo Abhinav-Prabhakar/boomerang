@@ -50,7 +50,7 @@ export function emit(type: string, data: unknown) {
 
 export function createTask(brief: string, repo: string): Task {
   const t: Task = {
-    id: `task-${(++seq).toString().padStart(3, '0')}`,
+    id: `task-${Date.now().toString(36)}-${(++seq).toString().padStart(2, '0')}`,
     brief,
     repo,
     branch: `boomerang/${Date.now().toString(36)}`,
