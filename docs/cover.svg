@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1117"/>
+      <stop offset="1" stop-color="#101820"/>
+    </linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f78166"/>
+      <stop offset="1" stop-color="#d29922"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- subtle grid -->
+  <g stroke="#21262d" stroke-width="1">
+    <path d="M0 157.5h1200M0 315h1200M0 472.5h1200M300 0v630M600 0v630M900 0v630"/>
+  </g>
+
+  <!-- boomerang arc: throw it out, it comes back -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M120 470 C 300 160, 700 120, 980 260" stroke="url(#arc)" stroke-width="7" stroke-dasharray="14 18"/>
+    <path d="M980 260 C 1060 330, 1010 430, 880 462 C 620 528, 340 528, 120 470" stroke="url(#arc)" stroke-width="7"/>
+    <circle cx="120" cy="470" r="9" fill="#f78166"/>
+    <circle cx="980" cy="260" r="9" fill="#d29922"/>
+  </g>
+
+  <!-- chime marks: it's calling YOU -->
+  <g stroke="#f78166" stroke-width="5" stroke-linecap="round" opacity="0.9">
+    <path d="M1030 200 a46 46 0 0 1 26 26"/>
+    <path d="M1048 168 a72 72 0 0 1 40 40"/>
+  </g>
+
+  <text x="600" y="316" text-anchor="middle" font-family="-apple-system,'SF Mono',Menlo,monospace"
+        font-size="104" font-weight="700" fill="#e6edf3" letter-spacing="2">BOOMERANG</text>
+  <text x="600" y="382" text-anchor="middle" font-family="-apple-system,'SF Mono',Menlo,monospace"
+        font-size="34" fill="#8b949e" font-style="italic">The agent that calls you back.</text>
+  <text x="600" y="560" text-anchor="middle" font-family="-apple-system,'SF Mono',Menlo,monospace"
+        font-size="20" fill="#484f58">voice pager for async coding agents · AssemblyAI Voice Agent Hackathon</text>
+</svg>
