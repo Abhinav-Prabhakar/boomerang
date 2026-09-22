@@ -21,14 +21,19 @@ Voice becomes an **interrupt channel**, not a chat window.
 
 ## Live Demo
 
-**https://crops-could-myth-sent.trycloudflare.com**
+**https://abhinav-prabhakar.github.io/boomerang/demo/** — a replay of a real
+recorded run inside the actual dashboard (real events, real transcript, real
+AssemblyAI agent voice, real PR).
 
-> Quick tunnels are ephemeral — if the URL is dead, relaunch in one command:
+> To run the full interactive version — voice brief, live worker, real
+> callback, your own verbal go/no-go:
 >
 > ```bash
-> make demo        # server + cloudflared tunnel; prints a fresh https URL
+> npm install && npm run seed && npm run dev   # http://localhost:8787
 > ```
 >
+> No API key needed — `VOICE_PROVIDER=mock` runs the whole loop with browser
+> speech. Drop in an AssemblyAI key for the real Voice Agent sessions.
 > Details: [docs/DEMO.md](docs/DEMO.md)
 
 ![Dashboard — agent callback holding for verbal consent](docs/screenshot-callback.png)
