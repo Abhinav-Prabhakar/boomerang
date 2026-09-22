@@ -43,11 +43,19 @@ export class AssemblyAIVoiceSession extends VoiceSession {
         session: {
           system_prompt: cfg.systemPrompt,
           greeting: cfg.greeting,
-          voice: cfg.voice || 'alloy',
+          voice: cfg.voice || config.aaiVoice,
           tools: cfg.tools || [],
-          keyterms: cfg.keyterms || [],
+          // env-provided keyterms merge with per-session ones (deduped)
+          keyterms: [...new Set([...(cfg.keyterms || []), ...config.aaiExtraKeyterms])],
           context: cfg.context,
-          turn_detection: { interrupt_response: true, min_silence: 400, max_silence: 1200 },
+          // Audio format for input.audio frames: base64 PCM16 mono @ aaiSampleRate.
+          // Browser side: AudioContext/AudioWorklet → Float32 → Int16 before send.
+          sample_rate: config.aaiSampleRate,
+          turn_detection: {
+            interrupt_response: config.aaiInterruptResponse,
+            min_silence: config.aaiMinSilenceMs,
+            max_silence: config.aaiMaxSilenceMs,
+          },
         },
       }));
     });

@@ -58,7 +58,15 @@ const STATE_LABEL = { briefed: 'briefed', working: 'working', blocked: 'blocked'
   awaiting_consent: 'CALLING YOU', approved: 'approved', rejected: 'rejected',
   shipped: 'shipped ✓', failed: 'failed' };
 
+// Tunnel-safe: all fetches/SSE use relative URLs, and any future WebSocket
+// derives ws:// vs wss:// from the page scheme — so the dashboard works
+// identically on localhost and over a https://*.trycloudflare.com tunnel.
+function wsUrl(path) {
+  return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${path}`;
+}
+
 function renderTask(t) {
+  if (!t || !t.id || !t.brief) return;
   tasks.set(t.id, t);
   let el = document.getElementById('card-' + t.id);
   if (!el) {
@@ -135,7 +143,11 @@ es.onmessage = (m) => {
   const { type, data } = JSON.parse(m.data);
   if (type === 'init') { data.forEach(renderTask); refreshReceipts(); }
   else if (type === 'task.created' || type === 'task.updated') renderTask(data);
-  else if (type === 'task.event') renderTask(tasks.get(data.taskId) || {});
+  else if (type === 'task.event') {
+    const known = tasks.get(data.taskId);
+    if (known) renderTask(known);
+    else api('/api/tasks/' + data.taskId).then(renderTask); // e.g. SSE reconnect
+  }
   else if (type === 'transcript') addTranscript(data.taskId, data.entry);
   else if (type === 'callback.speech') speak(data.text);
   else if (type === 'callback.started') chime();

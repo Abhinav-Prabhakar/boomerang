@@ -15,6 +15,15 @@ import { addWorkerEvent, updateTask, type Task } from './state.ts';
 const run = promisify(execFile);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// Never let credentials from a command line (x-access-token URLs, Bearer
+// headers) leak into task errors, transcripts, or consent receipts.
+export function sanitize(msg: string): string {
+  return msg
+    .replace(/x-access-token:[^@\s]+@/g, 'x-access-token:***@')
+    .replace(/(ghp|gho|ghu|ghs|ghr|github_pat)_[A-Za-z0-9_]+/g, '$1_***')
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer ***');
+}
+
 async function git(dir: string, args: string[]) {
   return run('git', args, { cwd: dir });
 }
@@ -84,9 +93,10 @@ export async function runWorker(task: Task): Promise<WorkerResult> {
     await run('git', ['clone', '--depth', '1', cloneUrl, repoDir]);
     ev('progress', `Cloned ${task.repo}`);
   } catch (e) {
-    ev('error', `Clone failed: ${(e as Error).message.slice(0, 200)}`);
-    updateTask(task.id, { state: 'failed', error: 'clone failed' });
-    throw e;
+    const msg = sanitize((e as Error).message).slice(0, 300);
+    ev('error', `Clone failed: ${msg}`);
+    updateTask(task.id, { state: 'failed', error: `clone failed: ${msg.split('\n').pop() || 'unknown'}` });
+    throw new Error(msg);
   }
 
   // 2) branch
@@ -117,17 +127,25 @@ export async function runWorker(task: Task): Promise<WorkerResult> {
     const { stdout } = await run('npm', ['test', '--silent'], { cwd: repoDir });
     ev('test', 'PASS — 6/6 tests green, 10 consecutive runs, zero flakes');
   } catch (e) {
-    ev('error', `Tests failed: ${(e as Error).message.slice(0, 160)}`);
-    updateTask(task.id, { state: 'failed', error: 'tests failed' });
-    throw e;
+    const msg = sanitize((e as Error).message).slice(0, 300);
+    ev('error', `Tests failed: ${msg.slice(0, 160)}`);
+    updateTask(task.id, { state: 'failed', error: `tests failed: ${msg.split('\n').pop() || 'unknown'}` });
+    throw new Error(msg);
   }
 
   // 6) commit + push for real
-  await git(repoDir, ['add', '-A']);
-  await git(repoDir, ['-c', 'user.name=boomerang-agent', '-c', 'user.email=boomerang@localhost',
-    'commit', '-m', 'fix(retry): atomic dequeue prevents double-processing race']);
-  await git(repoDir, ['push', '-u', 'origin', task.branch]);
-  ev('progress', `Pushed ${task.branch} → ${task.repo}`);
+  try {
+    await git(repoDir, ['add', '-A']);
+    await git(repoDir, ['-c', 'user.name=boomerang-agent', '-c', 'user.email=boomerang@localhost',
+      'commit', '-m', 'fix(retry): atomic dequeue prevents double-processing race']);
+    await git(repoDir, ['push', '-u', 'origin', task.branch]);
+    ev('progress', `Pushed ${task.branch} → ${task.repo}`);
+  } catch (e) {
+    const msg = sanitize((e as Error).message).slice(0, 300);
+    ev('error', `Push failed: ${msg.slice(0, 160)}`);
+    updateTask(task.id, { state: 'failed', error: `push failed: ${msg.split('\n').pop() || 'unknown'}` });
+    throw new Error(msg);
+  }
 
   const { stdout: stat } = await git(repoDir, ['diff', 'HEAD~1', '--stat']);
   const diffStat = stat.trim().split('\n').pop()?.trim() || '1 file changed';

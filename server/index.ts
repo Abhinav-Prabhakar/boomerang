@@ -4,8 +4,8 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { WebSocketServer } from 'ws';
 import { config } from './config.ts';
-import { listTasks, getTask, onEvent, updateTask } from './state.ts';
-import { dispatch, decide, feedUtterance, feedAudio, startCallback } from './orchestrator.ts';
+import { listTasks, getTask, onEvent, updateTask, saveNow } from './state.ts';
+import { dispatch, decide, feedUtterance, feedAudio, startCallback, closeAllSessions } from './orchestrator.ts';
 
 const WEB = path.resolve(process.cwd(), 'web');
 const MIME: Record<string, string> = {
@@ -120,3 +120,18 @@ server.listen(config.port, () => {
   console.log(`boomerang listening on http://localhost:${config.port}`);
   console.log(`voice provider: ${config.voiceProvider} · demo repo: ${config.demoRepo}`);
 });
+
+// ── graceful shutdown: flush the task store, hang up voice sessions ──
+let shuttingDown = false;
+function shutdown(signal: string) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`\n${signal} — saving state and closing sessions…`);
+  try { closeAllSessions(); } catch { /* noop */ }
+  try { saveNow(); } catch { /* noop */ }
+  server.close(() => process.exit(0));
+  wss.close();
+  setTimeout(() => process.exit(0), 1500).unref(); // don't hang on open SSE sockets
+}
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));

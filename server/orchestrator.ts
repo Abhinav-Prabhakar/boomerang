@@ -1,6 +1,7 @@
 // The Boomerang orchestrator: brief → work → CALLBACK → consent → action.
+import path from 'node:path';
 import { createTask, updateTask, addTranscript, getTask, emit, type Task } from './state.ts';
-import { runWorker } from './worker.ts';
+import { runWorker, sanitize } from './worker.ts';
 import { createVoiceSession, type VoiceSession } from './voice.ts';
 import { writeReceipt, hashTranscript } from './receipts.ts';
 import { createPullRequest } from './github.ts';
@@ -44,7 +45,13 @@ export function dispatch(brief: string): Task {
       startCallback(task.id);
     })
     .catch((e) => {
-      updateTask(task.id, { state: 'failed', error: (e as Error).message });
+      // Worker already records a specific error; don't clobber it, and never
+      // let raw stderr (which can carry credentials) reach the task record.
+      const cur = getTask(task.id);
+      updateTask(task.id, {
+        state: 'failed',
+        error: cur?.error || sanitize((e as Error).message).slice(0, 300),
+      });
       startCallback(task.id); // call back on failure too — escalation is the product
     });
   return task;
@@ -65,7 +72,7 @@ export function startCallback(taskId: string) {
         `Deliver the summary in under 15 seconds, then hold for a verbal decision. ` +
         `"Ship it" or clear approval → approve_ship. Any rejection → reject_ship. ` +
         `Questions → get_details. Never act without an explicit verbal decision.`,
-    voice: 'alloy',
+    voice: config.aaiVoice,
     tools: CONSENT_TOOLS,
     keyterms: ['retry.ts', task.repo.split('/')[1], 'pull request', task.branch],
     context: failed ? `Worker error: ${task.error}` : task.summary,
@@ -107,10 +114,39 @@ export async function decide(taskId: string, decision: 'approved' | 'rejected', 
   if (!task || task.state === 'shipped' || task.state === 'rejected') return;
 
   const callbackTranscript = task.transcript.filter((e) => e.session === 'callback');
+
+  // Failed run: the callback offered "retry or cancel" — there is no PR to
+  // open, so an approval means re-dispatch the same brief on a fresh worker.
+  if (task.state === 'failed' || task.state === 'retried') {
+    if (task.state === 'retried') return; // already re-dispatched once
+    if (decision === 'approved') {
+      updateTask(taskId, { state: 'retried', error: task.error });
+      writeReceipt({
+        taskId, decision: 'approved', decidedAt: new Date().toISOString(),
+        action: 'task.retry', actionResult: 're-dispatched on a fresh worker',
+        utterance, transcriptHash: hashTranscript(callbackTranscript),
+        summaryHeard: task.summary || task.error || '',
+      });
+      emit('callback.speech', { taskId, text: 'Retrying — dispatching a fresh worker. I will call you back.' });
+      const retry = dispatch(task.brief);
+      addTranscript(retry.id, 'agent', `Retry of ${task.id} after: ${(task.error || 'unknown failure').slice(0, 120)}`, 'brief');
+    } else {
+      updateTask(taskId, { state: 'rejected' });
+      writeReceipt({
+        taskId, decision, decidedAt: new Date().toISOString(),
+        action: 'task.cancel', actionResult: 'no retry, branch left as-is',
+        utterance, transcriptHash: hashTranscript(callbackTranscript),
+        summaryHeard: task.summary || task.error || '',
+      });
+      emit('callback.speech', { taskId, text: 'Cancelled. Nothing shipped.' });
+    }
+    return;
+  }
+
   if (decision === 'approved') {
     updateTask(taskId, { state: 'approved' });
     try {
-      const repoDir = (await import('node:path')).join((await import('./config.ts')).config.workDir, taskId);
+      const repoDir = path.join(config.workDir, taskId);
       const prUrl = await createPullRequest({
         repoDir,
         repo: task.repo,
@@ -127,7 +163,11 @@ export async function decide(taskId: string, decision: 'approved' | 'rejected', 
       });
       emit('callback.speech', { taskId, text: `PR is open: ${prUrl}` });
     } catch (e) {
-      updateTask(taskId, { state: 'failed', error: `PR failed: ${(e as Error).message}` });
+      updateTask(taskId, {
+        state: 'failed',
+        error: `PR failed: ${sanitize((e as Error).message).slice(0, 300)}`,
+      });
+      emit('callback.speech', { taskId, text: 'The pull request failed to open — check the dashboard for the error.' });
     }
   } else {
     updateTask(taskId, { state: 'rejected' });
@@ -147,4 +187,11 @@ export function feedUtterance(taskId: string, text: string) {
 
 export function feedAudio(taskId: string, frame: Buffer) {
   sessions.get(taskId)?.sendAudio(frame);
+}
+
+export function closeAllSessions() {
+  for (const s of sessions.values()) {
+    try { s.close(); } catch { /* closing is best-effort */ }
+  }
+  sessions.clear();
 }
