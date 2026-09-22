@@ -1,6 +1,6 @@
 // The Boomerang orchestrator: brief → work → CALLBACK → consent → action.
 import path from 'node:path';
-import { writeFileSync } from 'node:fs';
+import { appendFileSync } from 'node:fs';
 import { createTask, updateTask, addTranscript, getTask, emit, type Task } from './state.ts';
 import { runWorker, sanitize } from './worker.ts';
 import { createVoiceSession, type VoiceSession } from './voice.ts';
@@ -97,16 +97,13 @@ export function startCallback(taskId: string) {
     addTranscript(taskId, 'agent', t, 'callback');
     emit('callback.speech', { taskId, text: t });
   });
-  const audioChunks: Buffer[] = [];
-  session.on('reply.audio', (buf: Buffer) => {
-    audioChunks.push(buf);
-    emit('callback.audio', { taskId, audio: buf.toString('base64') });
-  });
   // Keep the real agent speech — demo footage can dub the actual voice.
-  session.on('session.ended', () => {
-    if (!audioChunks.length) return;
-    const f = path.join(config.dataDir, `audio-${taskId}.pcm`);
-    writeFileSync(f, Buffer.concat(audioChunks));
+  // Append each chunk as it streams so the PCM survives even if the
+  // session never formally ends (idle sockets can outlive the run).
+  const audioFile = path.join(config.dataDir, `audio-${taskId}.pcm`);
+  session.on('reply.audio', (buf: Buffer) => {
+    try { appendFileSync(audioFile, buf); } catch { /* best-effort */ }
+    emit('callback.audio', { taskId, audio: buf.toString('base64') });
   });
   session.on('tool.call', (call: { name: string; arguments?: { reason?: string } }) => {
     if (call.name === 'approve_ship') decide(taskId, 'approved', lastUserUtterance(taskId) || 'ship it');
