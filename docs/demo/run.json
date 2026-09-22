@@ -1,0 +1,636 @@
+{
+ "meta": {
+  "taskId": "task-muceuw8d-10",
+  "realDurationMs": 136408,
+  "replayDurationMs": 42327,
+  "audio": "agent.wav",
+  "note": "real recorded run; long dead-air gaps compressed"
+ },
+ "timeline": [
+  {
+   "t": 0,
+   "type": "init",
+   "data": []
+  },
+  {
+   "t": 0,
+   "type": "task.created",
+   "data": {
+    "id": "task-muceuw8d-10",
+    "brief": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+    "repo": "Abhinav-Prabhakar/boomerang-demo-target",
+    "branch": "boomerang/muceuw8d",
+    "createdAt": "2026-09-22T08:27:10.381Z",
+    "state": "briefed",
+    "events": [],
+    "transcript": []
+   }
+  },
+  {
+   "t": 5,
+   "type": "transcript",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "entry": {
+     "role": "user",
+     "text": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+     "ts": "2026-09-22T08:27:10.386Z",
+     "session": "brief"
+    }
+   }
+  },
+  {
+   "t": 5,
+   "type": "transcript",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "entry": {
+     "role": "agent",
+     "text": "On it. Working Abhinav-Prabhakar/boomerang-demo-target on branch boomerang/muceuw8d. I'll call you back when it's done.",
+     "ts": "2026-09-22T08:27:10.386Z",
+     "session": "brief"
+    }
+   }
+  },
+  {
+   "t": 6,
+   "type": "task.updated",
+   "data": {
+    "id": "task-muceuw8d-10",
+    "brief": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+    "repo": "Abhinav-Prabhakar/boomerang-demo-target",
+    "branch": "boomerang/muceuw8d",
+    "createdAt": "2026-09-22T08:27:10.381Z",
+    "state": "working",
+    "events": [],
+    "transcript": [
+     {
+      "role": "user",
+      "text": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     },
+     {
+      "role": "agent",
+      "text": "On it. Working Abhinav-Prabhakar/boomerang-demo-target on branch boomerang/muceuw8d. I'll call you back when it's done.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     }
+    ]
+   }
+  },
+  {
+   "t": 6,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "progress",
+     "message": "Spinning up worktree for Abhinav-Prabhakar/boomerang-demo-target",
+     "ts": "2026-09-22T08:27:10.387Z"
+    }
+   }
+  },
+  {
+   "t": 1669,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "progress",
+     "message": "Cloned Abhinav-Prabhakar/boomerang-demo-target",
+     "ts": "2026-09-22T08:27:12.050Z"
+    }
+   }
+  },
+  {
+   "t": 1684,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "progress",
+     "message": "Branch boomerang/muceuw8d",
+     "ts": "2026-09-22T08:27:12.065Z"
+    }
+   }
+  },
+  {
+   "t": 2887,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "info",
+     "message": "Brief: \"The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.\"",
+     "ts": "2026-09-22T08:27:13.268Z"
+    }
+   }
+  },
+  {
+   "t": 4390,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "progress",
+     "message": "Reproducing flake: npm test -- --test-reporter=spec",
+     "ts": "2026-09-22T08:27:14.771Z"
+    }
+   }
+  },
+  {
+   "t": 16390,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "test",
+     "message": "FAIL retry.test.ts \u2014 processed the same retry item twice (2/5 runs)",
+     "ts": "2026-09-22T08:28:54.842Z"
+    }
+   }
+  },
+  {
+   "t": 18209,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "progress",
+     "message": "Reading src/retry.ts \u2014 dequeue() reads items[0] then awaits before removal",
+     "ts": "2026-09-22T08:28:56.661Z"
+    }
+   }
+  },
+  {
+   "t": 19814,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "progress",
+     "message": "Race confirmed: two workers enter dequeue() between read and remove",
+     "ts": "2026-09-22T08:28:58.266Z"
+    }
+   }
+  },
+  {
+   "t": 21215,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "file_edit",
+     "message": "src/retry.ts \u2014 dequeue() now shifts atomically before yielding",
+     "ts": "2026-09-22T08:28:59.667Z"
+    }
+   }
+  },
+  {
+   "t": 22416,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "test",
+     "message": "Re-running test suite\u2026",
+     "ts": "2026-09-22T08:29:00.868Z"
+    }
+   }
+  },
+  {
+   "t": 23060,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "test",
+     "message": "PASS \u2014 6/6 tests green, 10 consecutive runs, zero flakes",
+     "ts": "2026-09-22T08:29:01.512Z"
+    }
+   }
+  },
+  {
+   "t": 25242,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "progress",
+     "message": "Pushed boomerang/muceuw8d \u2192 Abhinav-Prabhakar/boomerang-demo-target",
+     "ts": "2026-09-22T08:29:03.694Z"
+    }
+   }
+  },
+  {
+   "t": 25270,
+   "type": "task.event",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "event": {
+     "kind": "done",
+     "message": "Worker finished \u2014 fix verified",
+     "ts": "2026-09-22T08:29:03.722Z"
+    }
+   }
+  },
+  {
+   "t": 25420,
+   "type": "task.updated",
+   "data": {
+    "id": "task-muceuw8d-10",
+    "brief": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+    "repo": "Abhinav-Prabhakar/boomerang-demo-target",
+    "branch": "boomerang/muceuw8d",
+    "createdAt": "2026-09-22T08:27:10.381Z",
+    "state": "awaiting_consent",
+    "events": [
+     {
+      "kind": "progress",
+      "message": "Spinning up worktree for Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:27:10.387Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Cloned Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:27:12.050Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Branch boomerang/muceuw8d",
+      "ts": "2026-09-22T08:27:12.065Z"
+     },
+     {
+      "kind": "info",
+      "message": "Brief: \"The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.\"",
+      "ts": "2026-09-22T08:27:13.268Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Reproducing flake: npm test -- --test-reporter=spec",
+      "ts": "2026-09-22T08:27:14.771Z"
+     },
+     {
+      "kind": "test",
+      "message": "FAIL retry.test.ts \u2014 processed the same retry item twice (2/5 runs)",
+      "ts": "2026-09-22T08:28:54.842Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Reading src/retry.ts \u2014 dequeue() reads items[0] then awaits before removal",
+      "ts": "2026-09-22T08:28:56.661Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Race confirmed: two workers enter dequeue() between read and remove",
+      "ts": "2026-09-22T08:28:58.266Z"
+     },
+     {
+      "kind": "file_edit",
+      "message": "src/retry.ts \u2014 dequeue() now shifts atomically before yielding",
+      "ts": "2026-09-22T08:28:59.667Z"
+     },
+     {
+      "kind": "test",
+      "message": "Re-running test suite\u2026",
+      "ts": "2026-09-22T08:29:00.868Z"
+     },
+     {
+      "kind": "test",
+      "message": "PASS \u2014 6/6 tests green, 10 consecutive runs, zero flakes",
+      "ts": "2026-09-22T08:29:01.512Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Pushed boomerang/muceuw8d \u2192 Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:29:03.694Z"
+     },
+     {
+      "kind": "done",
+      "message": "Worker finished \u2014 fix verified",
+      "ts": "2026-09-22T08:29:03.722Z"
+     }
+    ],
+    "transcript": [
+     {
+      "role": "user",
+      "text": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     },
+     {
+      "role": "agent",
+      "text": "On it. Working Abhinav-Prabhakar/boomerang-demo-target on branch boomerang/muceuw8d. I'll call you back when it's done.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     }
+    ],
+    "summary": "Done \u2014 the flake was a race condition in the retry queue dequeue. Fixed in 1 file changed, 8 insertions(+), 9 deletions(-). Tests are green, ten consecutive runs. Say 'ship it' to open the PR, or 'don't ship' to reject.",
+    "diffStat": "1 file changed, 8 insertions(+), 9 deletions(-)"
+   }
+  },
+  {
+   "t": 25570,
+   "type": "callback.started",
+   "data": {
+    "taskId": "task-muceuw8d-10"
+   }
+  },
+  {
+   "t": 28036,
+   "type": "transcript",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "entry": {
+     "role": "agent",
+     "text": "Task muceuw eight d ten is complete. The flake was a race condition in the retry queue dequeue. I changed one file, with eight insertions and nine deletions. Tests are green after ten consecutive runs. Say ship it to open the pull request, or don't ship to reject.",
+     "ts": "2026-09-22T08:29:06.488Z",
+     "session": "callback"
+    }
+   }
+  },
+  {
+   "t": 28036,
+   "type": "callback.speech",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "text": "Task muceuw eight d ten is complete. The flake was a race condition in the retry queue dequeue. I changed one file, with eight insertions and nine deletions. Tests are green after ten consecutive runs. Say ship it to open the pull request, or don't ship to reject.",
+    "audio": {
+     "file": "agent.wav",
+     "from": 0.0,
+     "to": 12.2
+    }
+   }
+  },
+  {
+   "t": 35355,
+   "type": "transcript",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "entry": {
+     "role": "user",
+     "text": "ship it",
+     "ts": "2026-09-22T08:29:13.807Z",
+     "session": "callback"
+    }
+   }
+  },
+  {
+   "t": 35455,
+   "type": "task.updated",
+   "data": {
+    "id": "task-muceuw8d-10",
+    "brief": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+    "repo": "Abhinav-Prabhakar/boomerang-demo-target",
+    "branch": "boomerang/muceuw8d",
+    "createdAt": "2026-09-22T08:27:10.381Z",
+    "state": "approved",
+    "events": [
+     {
+      "kind": "progress",
+      "message": "Spinning up worktree for Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:27:10.387Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Cloned Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:27:12.050Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Branch boomerang/muceuw8d",
+      "ts": "2026-09-22T08:27:12.065Z"
+     },
+     {
+      "kind": "info",
+      "message": "Brief: \"The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.\"",
+      "ts": "2026-09-22T08:27:13.268Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Reproducing flake: npm test -- --test-reporter=spec",
+      "ts": "2026-09-22T08:27:14.771Z"
+     },
+     {
+      "kind": "test",
+      "message": "FAIL retry.test.ts \u2014 processed the same retry item twice (2/5 runs)",
+      "ts": "2026-09-22T08:28:54.842Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Reading src/retry.ts \u2014 dequeue() reads items[0] then awaits before removal",
+      "ts": "2026-09-22T08:28:56.661Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Race confirmed: two workers enter dequeue() between read and remove",
+      "ts": "2026-09-22T08:28:58.266Z"
+     },
+     {
+      "kind": "file_edit",
+      "message": "src/retry.ts \u2014 dequeue() now shifts atomically before yielding",
+      "ts": "2026-09-22T08:28:59.667Z"
+     },
+     {
+      "kind": "test",
+      "message": "Re-running test suite\u2026",
+      "ts": "2026-09-22T08:29:00.868Z"
+     },
+     {
+      "kind": "test",
+      "message": "PASS \u2014 6/6 tests green, 10 consecutive runs, zero flakes",
+      "ts": "2026-09-22T08:29:01.512Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Pushed boomerang/muceuw8d \u2192 Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:29:03.694Z"
+     },
+     {
+      "kind": "done",
+      "message": "Worker finished \u2014 fix verified",
+      "ts": "2026-09-22T08:29:03.722Z"
+     }
+    ],
+    "transcript": [
+     {
+      "role": "user",
+      "text": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     },
+     {
+      "role": "agent",
+      "text": "On it. Working Abhinav-Prabhakar/boomerang-demo-target on branch boomerang/muceuw8d. I'll call you back when it's done.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     },
+     {
+      "role": "agent",
+      "text": "Task muceuw eight d ten is complete. The flake was a race condition in the retry queue dequeue. I changed one file, with eight insertions and nine deletions. Tests are green after ten consecutive runs. Say ship it to open the pull request, or don't ship to reject.",
+      "ts": "2026-09-22T08:29:06.488Z",
+      "session": "callback"
+     },
+     {
+      "role": "user",
+      "text": "ship it",
+      "ts": "2026-09-22T08:29:13.807Z",
+      "session": "callback"
+     }
+    ],
+    "summary": "Done \u2014 the flake was a race condition in the retry queue dequeue. Fixed in 1 file changed, 8 insertions(+), 9 deletions(-). Tests are green, ten consecutive runs. Say 'ship it' to open the PR, or 'don't ship' to reject.",
+    "diffStat": "1 file changed, 8 insertions(+), 9 deletions(-)"
+   }
+  },
+  {
+   "t": 41355,
+   "type": "task.updated",
+   "data": {
+    "id": "task-muceuw8d-10",
+    "brief": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+    "repo": "Abhinav-Prabhakar/boomerang-demo-target",
+    "branch": "boomerang/muceuw8d",
+    "createdAt": "2026-09-22T08:27:10.381Z",
+    "state": "shipped",
+    "events": [
+     {
+      "kind": "progress",
+      "message": "Spinning up worktree for Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:27:10.387Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Cloned Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:27:12.050Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Branch boomerang/muceuw8d",
+      "ts": "2026-09-22T08:27:12.065Z"
+     },
+     {
+      "kind": "info",
+      "message": "Brief: \"The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.\"",
+      "ts": "2026-09-22T08:27:13.268Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Reproducing flake: npm test -- --test-reporter=spec",
+      "ts": "2026-09-22T08:27:14.771Z"
+     },
+     {
+      "kind": "test",
+      "message": "FAIL retry.test.ts \u2014 processed the same retry item twice (2/5 runs)",
+      "ts": "2026-09-22T08:28:54.842Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Reading src/retry.ts \u2014 dequeue() reads items[0] then awaits before removal",
+      "ts": "2026-09-22T08:28:56.661Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Race confirmed: two workers enter dequeue() between read and remove",
+      "ts": "2026-09-22T08:28:58.266Z"
+     },
+     {
+      "kind": "file_edit",
+      "message": "src/retry.ts \u2014 dequeue() now shifts atomically before yielding",
+      "ts": "2026-09-22T08:28:59.667Z"
+     },
+     {
+      "kind": "test",
+      "message": "Re-running test suite\u2026",
+      "ts": "2026-09-22T08:29:00.868Z"
+     },
+     {
+      "kind": "test",
+      "message": "PASS \u2014 6/6 tests green, 10 consecutive runs, zero flakes",
+      "ts": "2026-09-22T08:29:01.512Z"
+     },
+     {
+      "kind": "progress",
+      "message": "Pushed boomerang/muceuw8d \u2192 Abhinav-Prabhakar/boomerang-demo-target",
+      "ts": "2026-09-22T08:29:03.694Z"
+     },
+     {
+      "kind": "done",
+      "message": "Worker finished \u2014 fix verified",
+      "ts": "2026-09-22T08:29:03.722Z"
+     }
+    ],
+    "transcript": [
+     {
+      "role": "user",
+      "text": "The payments retry worker is double-charging \u2014 find the race, fix it, keep the API contract.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     },
+     {
+      "role": "agent",
+      "text": "On it. Working Abhinav-Prabhakar/boomerang-demo-target on branch boomerang/muceuw8d. I'll call you back when it's done.",
+      "ts": "2026-09-22T08:27:10.386Z",
+      "session": "brief"
+     },
+     {
+      "role": "agent",
+      "text": "Task muceuw eight d ten is complete. The flake was a race condition in the retry queue dequeue. I changed one file, with eight insertions and nine deletions. Tests are green after ten consecutive runs. Say ship it to open the pull request, or don't ship to reject.",
+      "ts": "2026-09-22T08:29:06.488Z",
+      "session": "callback"
+     },
+     {
+      "role": "user",
+      "text": "ship it",
+      "ts": "2026-09-22T08:29:13.807Z",
+      "session": "callback"
+     }
+    ],
+    "summary": "Done \u2014 the flake was a race condition in the retry queue dequeue. Fixed in 1 file changed, 8 insertions(+), 9 deletions(-). Tests are green, ten consecutive runs. Say 'ship it' to open the PR, or 'don't ship' to reject.",
+    "diffStat": "1 file changed, 8 insertions(+), 9 deletions(-)",
+    "prUrl": "https://github.com/Abhinav-Prabhakar/boomerang-demo-target/pull/8"
+   }
+  },
+  {
+   "t": 41405,
+   "type": "receipt",
+   "data": {
+    "id": "rcpt-mucexsqj",
+    "taskId": "task-muceuw8d-10",
+    "decision": "approved",
+    "decidedAt": "2026-09-22T08:29:25.817Z",
+    "action": "github.create_pr",
+    "actionResult": "https://github.com/Abhinav-Prabhakar/boomerang-demo-target/pull/8",
+    "utterance": "ship it",
+    "transcriptHash": "sha256:58de8bb1d7fa697a085ecaa9f6c654ba573fe8ee509a006cd6fc266ee98ed752",
+    "summaryHeard": "Done \u2014 the flake was a race condition in the retry queue dequeue. Fixed in 1 file changed, 8 insertions(+), 9 deletions(-). Tests are green, ten consecutive runs. Say 'ship it' to open the PR, or 'don't ship' to reject."
+   }
+  },
+  {
+   "t": 42327,
+   "type": "transcript",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "entry": {
+     "role": "agent",
+     "text": "Done. The pull request is now open.",
+     "ts": "2026-09-22T08:29:26.789Z",
+     "session": "callback"
+    }
+   }
+  },
+  {
+   "t": 42327,
+   "type": "callback.speech",
+   "data": {
+    "taskId": "task-muceuw8d-10",
+    "text": "Done. The pull request is now open.",
+    "audio": {
+     "file": "agent.wav",
+     "from": 12.4,
+     "to": 15.38
+    }
+   }
+  }
+ ]
+}
