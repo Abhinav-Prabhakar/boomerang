@@ -19,6 +19,12 @@ voice bridge:
 
 Voice becomes an **interrupt channel**, not a chat window.
 
+![Dashboard — agent callback holding for verbal consent](docs/screenshot-callback.png)
+
+*The moment that makes it a pager: the agent calls you, speaks the summary,
+and holds for a verbal go/no-go. The consent receipt lands in the ledger on
+the right.*
+
 ## Demo (happy path)
 
 ```bash
