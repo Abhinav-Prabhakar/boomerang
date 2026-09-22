@@ -6,7 +6,8 @@ const envPath = path.resolve(process.cwd(), '.env');
 if (existsSync(envPath)) {
   for (const line of readFileSync(envPath, 'utf8').split('\n')) {
     const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-    if (m && !line.trim().startsWith('#')) {
+    // real environment wins over .env (PORT=8899 node … must not be clobbered)
+    if (m && !line.trim().startsWith('#') && !(m[1] in process.env)) {
       process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
     }
   }
